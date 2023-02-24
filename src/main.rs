@@ -57,11 +57,12 @@ fn check_winner_status(game_map: &Vec<MapCells>) -> MapCells {
                 sum = 1;
                 cell = game_map[idx];
             }
-        }
-    }
 
-    if cell != MapCells::BALNK && sum == 3 {
-        return cell;
+            if cell != MapCells::BALNK && sum == 3 {
+                return cell;
+            }
+        }
+        println!("sum = {}", sum);
     }
 
     for j in 0..4 {
@@ -76,44 +77,12 @@ fn check_winner_status(game_map: &Vec<MapCells>) -> MapCells {
                 sum = 1;
                 cell = game_map[idx];
             }
+
+            if cell != MapCells::BALNK && sum == 3 {
+                return cell;
+            }
         }
-    }
-
-    if cell != MapCells::BALNK && sum == 3 {
-        return cell;
-    }
-
-    let main_diagonal = vec![0, 5, 10, 15];
-    let anti_diagonal = vec![3, 6, 9, 12];
-
-    sum = 0;
-    cell = MapCells::BALNK;
-    main_diagonal.iter().enumerate().for_each(|(i, _)| {
-        if cell == game_map[main_diagonal[i]] {
-            sum += 1;
-        } else {
-            sum = 1;
-            cell = game_map[main_diagonal[i]];
-        }
-    });
-
-    if cell != MapCells::BALNK && sum == 3 {
-        return cell;
-    }
-
-    sum = 0;
-    cell = MapCells::BALNK;
-    anti_diagonal.iter().enumerate().for_each(|(i, _)| {
-        if cell == game_map[anti_diagonal[i]] {
-            sum += 1;
-        } else {
-            sum = 1;
-            cell = game_map[anti_diagonal[i]];
-        }
-    });
-
-    if cell != MapCells::BALNK && sum == 3 {
-        return cell;
+        println!("sum = {}", sum);
     }
 
     return MapCells::BALNK;
@@ -146,17 +115,63 @@ fn read_user_move() -> (i32, i32) {
     }
 }
 
+fn step(game_map: &mut Vec<MapCells>, x: i32, y: i32, turn: MapCells) -> bool {
+    let idx = (x * 4 + y) as usize;
+    if game_map[idx] == MapCells::BALNK {
+        game_map[idx] = turn;
+        true
+    } else {
+        false
+    }
+}
+
 fn main() {
     let mut rng = rand::thread_rng();
     let mut game_map = initiate_game_map(&mut rng);
 
     let mut win_status = check_winner_status(&game_map);
+    let mut turn = MapCells::X;
+
+    print_game_map(&game_map);
+    let mut counter = 0;
     while win_status == MapCells::BALNK || win_status == MapCells::LOCK {
-        print_game_map(&game_map);
+        counter += 1;
+
+        if counter == 16 {
+            break;
+        }
+
         println!("Enter your move: ");
         let (x, y) = read_user_move();
 
-        println!("x = {}, y = {}", x, y);
-        break;
+        let res = step(&mut game_map, x, y, turn);
+
+        // println!("x = {}, y = {}", x, y);
+        turn = if turn == MapCells::X {
+            MapCells::O
+        } else {
+            MapCells::X
+        };
+        if !res {
+            println!("Illegal move!, the winner is: {}", {
+                if turn == MapCells::X {
+                    "X"
+                } else {
+                    "O"
+                }
+            });
+            break;
+        }
+
+        print_game_map(&game_map);
+        win_status = check_winner_status(&game_map);
     }
+
+    println!("The winner is: {}", {
+        if win_status == MapCells::X {
+            "X"
+        } else {
+            "O"
+        }
+    });
 }
