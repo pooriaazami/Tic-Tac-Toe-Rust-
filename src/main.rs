@@ -1,3 +1,5 @@
+use std::io;
+
 use rand::{rngs::ThreadRng, Rng};
 
 #[derive(Eq, PartialEq, Copy, Clone)]
@@ -117,14 +119,44 @@ fn check_winner_status(game_map: &Vec<MapCells>) -> MapCells {
     return MapCells::BALNK;
 }
 
+fn parse_string_to_integer(string: &str) -> i32 {
+    let res = string.to_owned().parse::<i32>();
+    // println!("[debug]: {}", string);
+    match res {
+        Ok(num) => num,
+        Err(_) => -1,
+    }
+}
+
+fn read_user_move() -> (i32, i32) {
+    let mut user_input = String::new();
+
+    io::stdin()
+        .read_line(&mut user_input)
+        .expect("Thre was an error reading the input");
+
+    let numbers: Vec<&str> = user_input.trim().split(" ").collect();
+    if numbers.len() != 2 {
+        (-1, -1)
+    } else {
+        (
+            parse_string_to_integer(numbers[0]),
+            parse_string_to_integer(numbers[1]),
+        )
+    }
+}
+
 fn main() {
     let mut rng = rand::thread_rng();
     let mut game_map = initiate_game_map(&mut rng);
 
-    print_game_map(&game_map);
-
     let mut win_status = check_winner_status(&game_map);
     while win_status == MapCells::BALNK || win_status == MapCells::LOCK {
+        print_game_map(&game_map);
+        println!("Enter your move: ");
+        let (x, y) = read_user_move();
+
+        println!("x = {}, y = {}", x, y);
         break;
     }
 }
