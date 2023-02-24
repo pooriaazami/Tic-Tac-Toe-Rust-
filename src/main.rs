@@ -42,8 +42,8 @@ fn print_game_map(game_map: &Vec<MapCells>) {
 }
 
 fn check_winner_status(game_map: &Vec<MapCells>) -> MapCells {
-    let mut sum: i32 = 0;
-    let mut cell = MapCells::BALNK;
+    let mut sum: i32;
+    let mut cell: MapCells;
 
     for i in 0..4 {
         sum = 0;
@@ -62,7 +62,6 @@ fn check_winner_status(game_map: &Vec<MapCells>) -> MapCells {
                 return cell;
             }
         }
-        println!("sum = {}", sum);
     }
 
     for j in 0..4 {
@@ -82,7 +81,52 @@ fn check_winner_status(game_map: &Vec<MapCells>) -> MapCells {
                 return cell;
             }
         }
-        println!("sum = {}", sum);
+    }
+
+    for j in 0..4 {
+        sum = 0;
+        cell = MapCells::BALNK;
+
+        for i in 0..4 {
+            if i != j{
+                continue;
+            }
+            let idx = i * 4 + j;
+
+            if cell == game_map[idx] {
+                sum += 1;
+            } else {
+                sum = 1;
+                cell = game_map[idx];
+            }
+
+            if cell != MapCells::BALNK && sum == 3 {
+                return cell;
+            }
+        }
+    }
+
+    for j in 0..4 {
+        sum = 0;
+        cell = MapCells::BALNK;
+
+        for i in 0..4 {
+            if i + j != 3{
+                continue;
+            }
+            let idx = i * 4 + j;
+
+            if cell == game_map[idx] {
+                sum += 1;
+            } else {
+                sum = 1;
+                cell = game_map[idx];
+            }
+
+            if cell != MapCells::BALNK && sum == 3 {
+                return cell;
+            }
+        }
     }
 
     return MapCells::BALNK;
